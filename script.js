@@ -78,71 +78,80 @@ function createNumberedMarker(lat, lng, number) {
 // v2: use ORS walking route API
 async function generateRoute() {
     console.log("generateRoute clicked");
+
     const btn = document.getElementById("generate");
-    btn.disabled = true;
-    btn.innerText = "Generating...";
-
-    if (!userLocation) {
-        btn.disabled = false;
-        btn.innerText = "Generate";
-        return;
-    }
-
-    const distanceKm = parseFloat(document.getElementById("distance").value) || 3;
-
-    const [lat, lng] = userLocation;
-
-    const [A, B] = getLoopPoints(lat, lng, distanceKm);
-
-    const apiKey = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjA1NmU5MmFkZmJjYjQ2MTE5ZjIyNjdiYjNjZTY0YWEyIiwiaCI6Im11cm11cjY0In0=";
-
-    const response = await fetch(
-        "https://api.openrouteservice.org/v2/directions/foot-walking",
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: apiKey,
-            },
-            body: JSON.stringify({
-                coordinates: [
-                    [lng, lat],
-                    [A[1], A[0]],
-                    [B[1], B[0]],
-                    [lng, lat],
-                ],
-            }),
-        }
-    );
-
-    const data = await response.json()
-
-    const encoded = data.routes[0].geometry;
-    const decoded = polyline.decode(encoded);
-    const coords = decoded;
-
-    if (routeLayer) {
-        map.removeLayer(routeLayer);
-    }
-    routeLayer = L.polyline(coords, { color: "#4ea1ff" }).addTo(map);
-
-    if (markersLayer) {
-        map.removeLayer(markersLayer);
-    }
-    markersLayer = L.layerGroup().addTo(map);
-
     
-    createNumberedMarker(A[0], A[1], 1).addTo(markersLayer);
-    createNumberedMarker(B[0], B[1], 2).addTo(markersLayer);
+    const setLoading = (loading) => {
+        btn.disabled = loading;
+        btn.innerText = loading ? "Generating..." : "Generate";
+    }
 
-    map.fitBounds(routeLayer.getBounds());
+    setLoading(true);
 
-    const info = document.getElementById("info");
-    const routeDistanceKm = (data.routes[0].summary.distance / 1000).toFixed(2);
-    info.innerHTML = `Actual distance: ${routeDistanceKm} km`;
+    try {
 
-    btn.disabled = false;
-    btn.innerText = "Generate";
+        if (!userLocation) {
+            btn.disabled = false;
+            btn.innerText = "Generate";
+            return;
+        }
+
+        const distanceKm = parseFloat(document.getElementById("distance").value) || 3;
+
+        const [lat, lng] = userLocation;
+
+        const [A, B] = getLoopPoints(lat, lng, distanceKm);
+
+        const apiKey = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjA1NmU5MmFkZmJjYjQ2MTE5ZjIyNjdiYjNjZTY0YWEyIiwiaCI6Im11cm11cjY0In0=";
+
+        const response = await fetch(
+            "https://api.openrouteservice.org/v2/directions/foot-walking",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: apiKey,
+                },
+                body: JSON.stringify({
+                    coordinates: [
+                        [lng, lat],
+                        [A[1], A[0]],
+                        [B[1], B[0]],
+                        [lng, lat],
+                    ],
+                }),
+            }
+        );
+
+        const data = await response.json()
+
+        const encoded = data.routes[0].geometry;
+        const decoded = polyline.decode(encoded);
+        const coords = decoded;
+
+        if (routeLayer) {
+            map.removeLayer(routeLayer);
+        }
+        routeLayer = L.polyline(coords, { color: "#4ea1ff" }).addTo(map);
+
+        if (markersLayer) {
+            map.removeLayer(markersLayer);
+        }
+        markersLayer = L.layerGroup().addTo(map);
+
+        
+        createNumberedMarker(A[0], A[1], 1).addTo(markersLayer);
+        createNumberedMarker(B[0], B[1], 2).addTo(markersLayer);
+
+        map.fitBounds(routeLayer.getBounds());
+
+        const info = document.getElementById("info");
+        const routeDistanceKm = (data.routes[0].summary.distance / 1000).toFixed(2);
+        info.innerHTML = `Actual distance: ${routeDistanceKm} km`;
+
+    } finally {
+        setLoading(false);
+    }
 }
 
 // button listener
