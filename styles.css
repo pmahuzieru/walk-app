@@ -138,4 +138,16 @@ button:hover {
     h1 {
         font-size: 1.2rem;
     }
+
+    .controls {
+        flex-wrap: wrap;
+    }
+
+    .input-group {
+        flex: 1 1 100%;
+    }
+
+    button {
+        width: 100%;
+    }
 }
