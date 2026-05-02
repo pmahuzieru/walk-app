@@ -1,6 +1,7 @@
 html, body {
   margin: 0;
-  height: 100%;
+  height: 100vh;
+  overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: #0f1115;
   color: #e6e6e6;
@@ -8,7 +9,9 @@ html, body {
 
 #app {
     position: relative;
-    height: 100%;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
 }
 
 h1 {
@@ -19,6 +22,22 @@ h1 {
 .controls {
     display: flex;
     gap: 8px;
+    align-items: center;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #a0a0a0;
+  white-space: nowrap;
 }
 
 input {
@@ -64,6 +83,9 @@ button:hover {
 }
 
 .panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
     position: absolute;
     top: 16px;
     left: 16px;
@@ -83,9 +105,19 @@ button:hover {
 }
 
 #info {
-    margin-top: 10px;
     font-size: 0.9rem;
     color: #a0a0a0
+}
+
+.watermark {
+  position: absolute;
+  z-index: 20;
+  bottom: 12px;
+  right: 12px;
+  font-size: 0.75rem;
+  color: rgba(230,230,230,0.35);
+  pointer-events: none;
+  user-select: none;
 }
 
 @media (max-width: 600px) {
