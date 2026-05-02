@@ -78,8 +78,15 @@ function createNumberedMarker(lat, lng, number) {
 // v2: use ORS walking route API
 async function generateRoute() {
     console.log("generateRoute clicked");
+    const btn = document.getElementById("generate");
+    btn.disabled = true;
+    btn.innerText = "Generating...";
 
-    if (!userLocation) return;
+    if (!userLocation) {
+        btn.disabled = false;
+        btn.innerText = "Generate";
+        return;
+    }
 
     const distanceKm = parseFloat(document.getElementById("distance").value) || 3;
 
@@ -129,6 +136,13 @@ async function generateRoute() {
     createNumberedMarker(B[0], B[1], 2).addTo(markersLayer);
 
     map.fitBounds(routeLayer.getBounds());
+
+    const info = document.getElementById("info");
+    const routeDistanceKm = (data.routes[0].summary.distance / 1000).toFixed(2);
+    info.innerHTML = `Actual distance: ${routeDistanceKm} km`;
+
+    btn.disabled = false;
+    btn.innerText = "Generate";
 }
 
 // button listener
