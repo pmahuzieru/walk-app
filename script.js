@@ -1,6 +1,7 @@
 let map;
 let userLocation = null;
 let routeLayer = null;
+let markersLayer = null;
 
 // Initialize map
 function initMap(lat, lng) {
@@ -64,6 +65,16 @@ function getLoopPoints(lat, lng, distanceKm) {
     return [pointA, pointB];
 }
 
+function createNumberedMarker(lat, lng, number) {
+  return L.marker([lat, lng], {
+    icon: L.divIcon({
+      className: "custom-marker",
+      html: `<div class="marker">${number}</div>`,
+      iconSize: [20, 20],
+    }),
+  });
+}
+
 // v2: use ORS walking route API
 async function generateRoute() {
     console.log("generateRoute clicked");
@@ -106,8 +117,16 @@ async function generateRoute() {
     if (routeLayer) {
         map.removeLayer(routeLayer);
     }
-
     routeLayer = L.polyline(coords, { color: "#4ea1ff" }).addTo(map);
+
+    if (markersLayer) {
+        map.removeLayer(markersLayer);
+    }
+    markersLayer = L.layerGroup().addTo(map);
+
+    
+    createNumberedMarker(A[0], A[1], 1).addTo(markersLayer);
+    createNumberedMarker(B[0], B[1], 2).addTo(markersLayer);
 
     map.fitBounds(routeLayer.getBounds());
 }
