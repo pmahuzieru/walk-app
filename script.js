@@ -25,40 +25,56 @@ navigator.geolocation.getCurrentPosition(
     }
 );
 
-function getRandomPoint(lat, lng, distanceKm) {
+function getLoopPoints(lat, lng, distanceKm) {
+    console.log("getting loop points");
     const R = 6371;  // Earth radius in km
 
-    const bearing = Math.random() * 2 * Math.PI;
+    const baseBearing = Math.random() * 2 * Math.PI;
 
-    const d = distanceKm / R;
+    // spread points ~60-120 degrees apart
+    const angleOffset = (Math.PI / 3) + Math.random() * (Math.PI / 3);
 
-    const lat1 = (lat * Math.PI) / 180;
-    const lng1 = (lng * Math.PI) / 180;
+    const d = (distanceKm * (0.4 + Math.random() * 0.2)) / R;
 
-    const lat2 = Math.asin(
-        Math.sin(lat1) * Math.cos(d) +
-            Math.cos(lat1) * Math.sin(d) * Math.cos(bearing)
-    );
+    console.log(`baseBearing=${baseBearing}, angleOffset=${angleOffset}, d=${d}`);
 
-    const lng2 =
-        lng1 +
-        Math.atan2(
-            Math.sin(bearing) * Math.sin(d) * Math.cos(lat1),
-            Math.cos(d) - Math.sin(lat1) * Math.sin(lat2)
+    function computePoint(bearing) {
+        const lat1 = (lat * Math.PI) / 180;
+        const lng1 = (lng * Math.PI) / 180;
+
+        const lat2 = Math.asin(
+            Math.sin(lat1) * Math.cos(d) +
+                Math.cos(lat1) * Math.sin(d) * Math.cos(bearing)
         );
 
-    return [ (lat2 * 180) / Math.PI, (lng2 * 180) / Math.PI];
+        const lng2 =
+            lng1 +
+            Math.atan2(
+                Math.sin(bearing) * Math.sin(d) * Math.cos(lat1),
+                Math.cos(d) - Math.sin(lat1) * Math.sin(lat2)
+            );
+
+        return [(lat2 * 180) / Math.PI, (lng2 * 180) / Math.PI];
+    }
+
+    const pointA = computePoint(baseBearing);
+    const pointB = computePoint(baseBearing + angleOffset);
+    console.log(`pointA=${pointA}, pointB=${pointB}`);
+
+    return [pointA, pointB];
 }
 
 // v2: use ORS walking route API
 async function generateRoute() {
+    console.log("generateRoute clicked");
+
     if (!userLocation) return;
 
     const distanceKm = parseFloat(document.getElementById("distance").value) || 3;
 
     const [lat, lng] = userLocation;
 
-    const destination = getRandomPoint(lat, lng, distanceKm / 2);
+    const [A, B] = getLoopPoints(lat, lng, distanceKm);
 
     const apiKey = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjA1NmU5MmFkZmJjYjQ2MTE5ZjIyNjdiYjNjZTY0YWEyIiwiaCI6Im11cm11cjY0In0=";
 
@@ -73,7 +89,8 @@ async function generateRoute() {
             body: JSON.stringify({
                 coordinates: [
                     [lng, lat],
-                    [destination[1], destination[0]],
+                    [A[1], A[0]],
+                    [B[1], B[0]],
                     [lng, lat],
                 ],
             }),
