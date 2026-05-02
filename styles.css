@@ -1,0 +1,35 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #0f1115;
+  color: #e6e6e6;
+}
+
+.container {
+  padding: 16px;
+}
+
+h1 {
+  margin-bottom: 12px;
+}
+
+.controls {
+  margin-bottom: 12px;
+}
+
+input {
+  padding: 8px;
+  margin-right: 8px;
+  width: 120px;
+}
+
+button {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+#map {
+  height: 70vh;
+  border-radius: 8px;
+  overflow: hidden;
+}
